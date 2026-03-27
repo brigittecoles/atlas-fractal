@@ -94,11 +94,11 @@ export default function DesignPage() {
   if (loadingPhase) {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Agent System Design</h1>
         </div>
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
+        <div className="o-loading">
+          <div className="a-heartbeat" />
           <p>{loadingPhase}</p>
         </div>
       </div>
@@ -108,11 +108,11 @@ export default function DesignPage() {
   if (!designResult) {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Agent System Design</h1>
         </div>
-        {error && <div className="error-banner">{error}</div>}
-        <p style={{ color: "var(--color-text-secondary)" }}>
+        {error && <div className="o-alert o-alert--err">{error}</div>}
+        <p style={{ color: "var(--text-2)" }}>
           No design result available. Please complete the Processes step first.
         </p>
       </div>
@@ -127,7 +127,7 @@ export default function DesignPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="o-page-header">
         <h1>Fractal Agent System Design</h1>
         <p>
           {totalNodes} nodes designed across {designResult.value_chain_areas.length} value
@@ -136,28 +136,28 @@ export default function DesignPage() {
         </p>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="o-alert o-alert--err">{error}</div>}
 
-      <div className="split-layout">
-        <div className="split-layout__left">
+      <div className="t-split">
+        <div className="t-split__left">
           <FractalTree
             nodes={designResult.value_chain_areas}
             selectedNodeId={selectedNodeId}
             onSelectNode={setSelectedNodeId}
           />
         </div>
-        <div className="split-layout__right">
+        <div className="t-split__right">
           {selectedNode ? (
             <NodeDetail node={selectedNode} />
           ) : (
             <div
-              className="card"
+              className="o-card"
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 minHeight: 300,
-                color: "var(--color-text-secondary)",
+                color: "var(--text-2)",
               }}
             >
               Select a node from the tree to view its details
@@ -174,7 +174,7 @@ export default function DesignPage() {
 
       <div style={{ marginTop: 32 }}>
         <button
-          className="btn btn--primary"
+          className="a-btn a-btn--primary"
           disabled={loading}
           onClick={() => router.push("/wizard/configure")}
         >

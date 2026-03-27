@@ -111,18 +111,19 @@ export default function ProcessesPage() {
         };
       });
 
-    await callTool("select_processes", { processes: selectedProcesses });
+    // Store selection in localStorage for the design page
+    localStorage.setItem("atlas-fractal-selected-processes", JSON.stringify(selectedProcesses));
     router.push("/wizard/design");
   };
 
   if (loadingPhase) {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Process Selection</h1>
         </div>
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
+        <div className="o-loading">
+          <div className="a-heartbeat" />
           <p>{loadingPhase}</p>
         </div>
       </div>
@@ -147,7 +148,7 @@ export default function ProcessesPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="o-page-header">
         <h1>Process Selection</h1>
         <p>
           Select the business processes to automate with AI agents. Processes are grouped
@@ -155,14 +156,14 @@ export default function ProcessesPage() {
         </p>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="o-alert o-alert--err">{error}</div>}
 
       <div style={{ marginBottom: 20, display: "flex", gap: 12, alignItems: "center" }}>
-        <span style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>
+        <span style={{ fontSize: 13, color: "var(--text-2)" }}>
           {selected.size} of {processes.length} selected
         </span>
         <button
-          className="btn btn--secondary btn--small"
+          className="a-btn a-btn--secondary a-btn--sm"
           disabled={selected.size === 0 || loading}
           onClick={handleEstimateImpact}
         >
@@ -171,8 +172,8 @@ export default function ProcessesPage() {
       </div>
 
       {ebitdaEstimate && (
-        <div className="card" style={{ marginBottom: 24 }}>
-          <div className="card__title">
+        <div className="o-card" style={{ marginBottom: 24 }}>
+          <div className="o-card__title">
             Estimated EBITDA Impact: ${(ebitdaEstimate.total_savings / 1e6).toFixed(1)}M
           </div>
           {ebitdaEstimate.by_process.map((bp) => (
@@ -182,7 +183,7 @@ export default function ProcessesPage() {
                 <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>
                   ${(bp.estimated_savings / 1e6).toFixed(2)}M
                 </span>
-                <span className={`badge badge--${bp.confidence === "high" ? "positive" : bp.confidence === "medium" ? "marginal" : "negative"}`} style={{ marginLeft: 8 }}>
+                <span className={`a-badge a-badge--${bp.confidence === "high" ? "ok" : bp.confidence === "medium" ? "warn" : "err"}`} style={{ marginLeft: 8 }}>
                   {bp.confidence}
                 </span>
               </span>
@@ -192,8 +193,8 @@ export default function ProcessesPage() {
       )}
 
       {grouped.map((group) => (
-        <div key={group.activity} className="vc-group">
-          <div className="vc-group__header">{group.activity}</div>
+        <div key={group.activity} className="o-vc-group">
+          <div className="o-vc-group__header">{group.activity}</div>
           {group.processes.map((proc) => (
             <ProcessRow
               key={proc.process_id}
@@ -209,8 +210,8 @@ export default function ProcessesPage() {
       ))}
 
       {ungrouped.length > 0 && (
-        <div className="vc-group">
-          <div className="vc-group__header">Other Processes</div>
+        <div className="o-vc-group">
+          <div className="o-vc-group__header">Other Processes</div>
           {ungrouped.map((proc) => (
             <ProcessRow
               key={proc.process_id}
@@ -226,7 +227,7 @@ export default function ProcessesPage() {
 
       <div style={{ marginTop: 32 }}>
         <button
-          className="btn btn--primary"
+          className="a-btn a-btn--primary"
           disabled={selected.size === 0 || loading}
           onClick={handleContinue}
         >
@@ -255,14 +256,14 @@ function ProcessRow({
   const scoreClass =
     ebitdaScore != null
       ? ebitdaScore >= 4
-        ? "positive"
+        ? "ok"
         : ebitdaScore >= 2.5
-          ? "marginal"
-          : "negative"
-      : "info";
+          ? "warn"
+          : "err"
+      : "muted";
 
   return (
-    <label className="checkbox-item">
+    <label className="m-check-item">
       <input
         type="checkbox"
         checked={checked}
@@ -271,13 +272,13 @@ function ProcessRow({
       <div style={{ flex: 1 }}>
         <div style={{ fontWeight: 500, fontSize: 14 }}>{name}</div>
         {rationale && (
-          <div style={{ fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 2 }}>
             {rationale}
           </div>
         )}
       </div>
       {ebitdaScore != null && (
-        <span className={`badge badge--${scoreClass}`}>
+        <span className={`a-badge a-badge--${scoreClass}`}>
           {ebitdaScore.toFixed(1)}
         </span>
       )}

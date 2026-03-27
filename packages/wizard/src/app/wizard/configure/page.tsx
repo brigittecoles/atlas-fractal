@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtlas } from "../../../hooks/use-atlas";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyResult = Record<string, any>;
 
 interface ValidationIssue {
   severity: "error" | "warning" | "info";
@@ -70,11 +67,11 @@ export default function ConfigurePage() {
   if (step === "validating") {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Configuring for {PLATFORMS.find((p) => p.id === platform)?.label}</h1>
         </div>
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
+        <div className="o-loading">
+          <div className="a-heartbeat" />
           <p>Validating system and resolving dependencies...</p>
         </div>
       </div>
@@ -88,7 +85,7 @@ export default function ConfigurePage() {
 
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Configuration Results</h1>
           <p>
             Platform: {PLATFORMS.find((p) => p.id === platform)?.label}.
@@ -96,22 +93,22 @@ export default function ConfigurePage() {
           </p>
         </div>
 
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="o-alert o-alert--err">{error}</div>}
 
         {/* NPV Coverage */}
         {npvCoverage && (
-          <div className="card" style={{ marginBottom: 16 }}>
-            <div className="card__title">NPV Coverage</div>
-            <div className="grid-2" style={{ marginTop: 12 }}>
+          <div className="o-card" style={{ marginBottom: 16 }}>
+            <div className="o-card__title">NPV Coverage</div>
+            <div className="o-grid-2" style={{ marginTop: 12 }}>
               <div>
-                <div className="form-label">With NPV Scores</div>
-                <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--color-success)" }}>
+                <div className="m-field__label">With NPV Scores</div>
+                <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--ok)" }}>
                   {npvCoverage.with_npv}
                 </div>
               </div>
               <div>
-                <div className="form-label">Without NPV Scores</div>
-                <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", color: npvCoverage.without_npv > 0 ? "var(--color-warning)" : "var(--color-text-secondary)" }}>
+                <div className="m-field__label">Without NPV Scores</div>
+                <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "var(--font-mono)", color: npvCoverage.without_npv > 0 ? "var(--warn)" : "var(--text-2)" }}>
                   {npvCoverage.without_npv}
                 </div>
               </div>
@@ -120,27 +117,27 @@ export default function ConfigurePage() {
         )}
 
         {/* Validation Issues */}
-        <div className="card" style={{ marginBottom: 16 }}>
-          <div className="card__title">
+        <div className="o-card" style={{ marginBottom: 16 }}>
+          <div className="o-card__title">
             Validation ({errors.length} errors, {warnings.length} warnings, {infos.length} info)
           </div>
           <div style={{ marginTop: 12 }}>
             {validationIssues.length === 0 ? (
-              <p style={{ color: "var(--color-success)", fontSize: 14 }}>
+              <p style={{ color: "var(--ok)", fontSize: 14 }}>
                 All validation checks passed.
               </p>
             ) : (
               validationIssues.map((issue, i) => (
-                <div key={i} className={`issue-item issue-item--${issue.severity}`}>
+                <div key={i} className={`m-issue-row m-issue-row--${issue.severity}`}>
                   <span
-                    className={`badge badge--${issue.severity === "error" ? "negative" : issue.severity === "warning" ? "marginal" : "info"}`}
+                    className={`a-badge a-badge--${issue.severity === "error" ? "err" : issue.severity === "warning" ? "warn" : "muted"}`}
                   >
                     {issue.severity}
                   </span>
                   <div>
                     <div>{issue.message}</div>
                     {issue.node_id && (
-                      <div style={{ fontSize: 11, color: "var(--color-text-secondary)", marginTop: 2 }}>
+                      <div style={{ fontSize: 11, color: "var(--text-2)", marginTop: 2 }}>
                         Node: {issue.node_id}
                       </div>
                     )}
@@ -153,17 +150,17 @@ export default function ConfigurePage() {
 
         {/* Execution Layers */}
         {executionLayers.length > 0 && (
-          <div className="card" style={{ marginBottom: 16 }}>
-            <div className="card__title">Execution Plan ({executionLayers.length} layers)</div>
+          <div className="o-card" style={{ marginBottom: 16 }}>
+            <div className="o-card__title">Execution Plan ({executionLayers.length} layers)</div>
             <div style={{ marginTop: 12 }}>
               {executionLayers.map((layer) => (
                 <div key={layer.layer} style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 6 }}>
                     Layer {layer.layer}
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {layer.nodes.map((node) => (
-                      <span key={node.node_id} className="badge badge--type">
+                      <span key={node.node_id} className="a-badge a-badge--accent">
                         {node.name} ({node.type.replace(/_/g, " ")})
                       </span>
                     ))}
@@ -176,7 +173,7 @@ export default function ConfigurePage() {
 
         {/* Translation Warnings */}
         {translationWarnings.length > 0 && (
-          <div className="warning-banner">
+          <div className="o-alert o-alert--warn">
             <strong>Translation Warnings:</strong>
             <ul style={{ margin: "8px 0 0 16px" }}>
               {translationWarnings.map((w, i) => (
@@ -188,7 +185,7 @@ export default function ConfigurePage() {
 
         <div style={{ marginTop: 24 }}>
           <button
-            className="btn btn--primary"
+            className="a-btn a-btn--primary"
             disabled={errors.length > 0}
             onClick={() => router.push("/wizard/export")}
           >
@@ -204,7 +201,7 @@ export default function ConfigurePage() {
   // Platform selection view
   return (
     <div>
-      <div className="page-header">
+      <div className="o-page-header">
         <h1>Configure Target Platform</h1>
         <p>
           Select the platform to generate agent configurations for. ATLAS will validate
@@ -212,16 +209,16 @@ export default function ConfigurePage() {
         </p>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="o-alert o-alert--err">{error}</div>}
 
-      <div className="card">
-        <div className="form-group">
-          <label className="form-label" htmlFor="platform-select">
+      <div className="o-card">
+        <div className="m-field">
+          <label className="m-field__label" htmlFor="platform-select">
             Target Platform
           </label>
           <select
             id="platform-select"
-            className="form-select"
+            className="a-select"
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
           >
@@ -235,7 +232,7 @@ export default function ConfigurePage() {
         </div>
 
         <button
-          className="btn btn--primary"
+          className="a-btn a-btn--primary"
           disabled={!platform || loading}
           onClick={() => handlePlatformSelect(platform)}
         >

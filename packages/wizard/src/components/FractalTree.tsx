@@ -13,7 +13,7 @@ interface FractalTreeProps {
 
 export default function FractalTree({ nodes, selectedNodeId, onSelectNode }: FractalTreeProps) {
   return (
-    <div className="fractal-tree">
+    <div className="o-fractal-tree">
       {nodes.map((node) => (
         <TreeNode
           key={node.identity.id}
@@ -52,23 +52,23 @@ function TreeNode({
   );
 
   const npvClass =
-    npv != null ? (npv >= 5 ? "positive" : npv >= 0 ? "marginal" : "negative") : null;
+    npv != null ? (npv >= 5 ? "ok" : npv >= 0 ? "warn" : "err") : null;
 
   const typeLabel = node.identity.type.replace(/_/g, " ");
 
   return (
-    <div className={depth === 0 ? "fractal-tree__node fractal-tree__node--root" : "fractal-tree__node"}>
+    <div className={depth === 0 ? "o-fractal-tree__node o-fractal-tree__node--root" : "o-fractal-tree__node"}>
       <div
-        className={`fractal-tree__row ${isSelected ? "fractal-tree__row--selected" : ""}`}
+        className={`o-fractal-tree__row ${isSelected ? "o-fractal-tree__row--selected" : ""}`}
         onClick={() => onSelectNode(node.identity.id)}
       >
-        <span className="fractal-tree__toggle" onClick={toggleExpand}>
+        <span className="o-fractal-tree__toggle" onClick={toggleExpand}>
           {hasChildren ? (expanded ? "\u25BC" : "\u25B6") : "\u00B7"}
         </span>
-        <span className="badge badge--type">{typeLabel}</span>
-        <span className="fractal-tree__name">{node.identity.name}</span>
+        <span className="a-badge a-badge--accent">{typeLabel}</span>
+        <span className="o-fractal-tree__name">{node.identity.name}</span>
         {npv != null && (
-          <span className={`badge badge--${npvClass}`}>
+          <span className={`a-badge a-badge--${npvClass}`}>
             NPV {npv.toFixed(1)}
           </span>
         )}

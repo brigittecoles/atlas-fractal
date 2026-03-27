@@ -29,16 +29,16 @@ export default function NodeDetail({ node }: NodeDetailProps) {
   if (!node) return null;
 
   return (
-    <div className="card">
-      <div className="card__title" style={{ marginBottom: 16 }}>
+    <div className="o-card">
+      <div className="o-card__title" style={{ marginBottom: 16 }}>
         {node.identity?.name || "Node Detail"}
       </div>
 
-      <div className="tabs">
+      <div className="m-tab-bar">
         {TABS.map((tab) => (
           <button
             key={tab.id}
-            className={`tab ${activeTab === tab.id ? "tab--active" : ""}`}
+            className={`m-tab-item ${activeTab === tab.id ? "m-tab-item--active" : ""}`}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
@@ -87,9 +87,9 @@ function IdentitySection({ node }: { node: AnyNode }) {
       <DetailField label="Parent Context" value={id.parent_context} />
       <DetailField label="Stopping Condition" value={id.stopping_condition} />
       {id.candidate_child_concepts?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Candidate Child Concepts</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Candidate Child Concepts</div>
+          <ul className="o-detail-list">
             {id.candidate_child_concepts.map((c: string, i: number) => (
               <li key={i}>{c}</li>
             ))}
@@ -110,9 +110,9 @@ function PurposeSection({ node }: { node: AnyNode }) {
       <DetailField label="Primary Route" value={p.primary_route} />
       <DetailField label="Mad Lib" value={p.mad_lib} />
       {p.surfaces?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Surfaces</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Surfaces</div>
+          <ul className="o-detail-list">
             {p.surfaces.map((s: string, i: number) => (
               <li key={i}>{s}</li>
             ))}
@@ -120,9 +120,9 @@ function PurposeSection({ node }: { node: AnyNode }) {
         </div>
       )}
       {p.primary_users?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Primary Users</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Primary Users</div>
+          <ul className="o-detail-list">
             {p.primary_users.map((u: string, i: number) => (
               <li key={i}>{u}</li>
             ))}
@@ -138,9 +138,9 @@ function IOSection({ node }: { node: AnyNode }) {
   return (
     <div>
       {io.inputs?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Inputs</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Inputs</div>
+          <ul className="o-detail-list">
             {io.inputs.map((inp: string, i: number) => (
               <li key={i}>{inp}</li>
             ))}
@@ -148,15 +148,15 @@ function IOSection({ node }: { node: AnyNode }) {
         </div>
       )}
       {io.outputs?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Outputs</div>
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Outputs</div>
           {io.outputs.map((o: AnyNode, i: number) => (
-            <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--color-border)" }}>
+            <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--border)" }}>
               <strong>{o.name}</strong>
-              <span className="badge badge--info" style={{ marginLeft: 8 }}>
+              <span className="a-badge a-badge--muted" style={{ marginLeft: 8 }}>
                 {o.output_id}
               </span>
-              <div style={{ fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 2 }}>
                 {o.description}
               </div>
             </div>
@@ -166,9 +166,9 @@ function IOSection({ node }: { node: AnyNode }) {
       <DetailField label="Why Outputs Matter" value={io.why_outputs_matter} />
       <DetailField label="Blast Radius" value={io.blast_radius} />
       {io.downstream_consumers?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Downstream Consumers</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Downstream Consumers</div>
+          <ul className="o-detail-list">
             {io.downstream_consumers.map((c: string, i: number) => (
               <li key={i}>{c}</li>
             ))}
@@ -199,9 +199,9 @@ function RuntimeSection({ node }: { node: AnyNode }) {
       <DetailField label="Runtime Tier" value={rt.runtime_tier} />
       {listFields.map((field) =>
         rt[field]?.length > 0 ? (
-          <div key={field} className="detail-section">
-            <div className="detail-section__title">{field.replace(/_/g, " ")}</div>
-            <ul className="detail-list">
+          <div key={field} className="o-detail-section">
+            <div className="o-detail-section__title">{field.replace(/_/g, " ")}</div>
+            <ul className="o-detail-list">
               {rt[field].map((item: string, i: number) => (
                 <li key={i}>{item}</li>
               ))}
@@ -218,23 +218,23 @@ function ToolsSection({ node }: { node: AnyNode }) {
   return (
     <div>
       {tmp.tools?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Tools</div>
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Tools</div>
           {tmp.tools.map((t: AnyNode, i: number) => (
-            <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--color-border)" }}>
+            <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--border)" }}>
               <strong style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>{t.name}</strong>
-              <div style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>{t.description}</div>
+              <div style={{ fontSize: 12, color: "var(--text-2)" }}>{t.description}</div>
             </div>
           ))}
         </div>
       )}
       {tmp.memory && (
-        <div className="detail-section">
-          <div className="detail-section__title">Memory Layers</div>
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Memory Layers</div>
           {Object.entries(tmp.memory).map(([layer, config]) => (
             <div key={layer} style={{ padding: "4px 0" }}>
               <strong style={{ textTransform: "capitalize" }}>{layer}</strong>:{" "}
-              <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>
+              <span style={{ fontSize: 12, color: "var(--text-2)" }}>
                 {(config as AnyNode).description || "N/A"}
               </span>
             </div>
@@ -242,9 +242,9 @@ function ToolsSection({ node }: { node: AnyNode }) {
         </div>
       )}
       {tmp.policies?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Policies</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Policies</div>
+          <ul className="o-detail-list">
             {tmp.policies.map((p: string, i: number) => (
               <li key={i}>{p}</li>
             ))}
@@ -252,9 +252,9 @@ function ToolsSection({ node }: { node: AnyNode }) {
         </div>
       )}
       {tmp.handoffs?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Handoffs</div>
-          <ul className="detail-list">
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Handoffs</div>
+          <ul className="o-detail-list">
             {tmp.handoffs.map((h: string, i: number) => (
               <li key={i}>{h}</li>
             ))}
@@ -269,31 +269,31 @@ function ToolsSection({ node }: { node: AnyNode }) {
 
 function NPVSection({ node }: { node: AnyNode }) {
   const npv = node.structural_npv;
-  if (!npv) return <p style={{ color: "var(--color-text-secondary)" }}>No NPV data available.</p>;
+  if (!npv) return <p style={{ color: "var(--text-2)" }}>No NPV data available.</p>;
 
   const npvColor =
     npv.net_structural_npv >= 5
-      ? "var(--color-npv-positive)"
+      ? "var(--trust-hi)"
       : npv.net_structural_npv >= 0
-        ? "var(--color-npv-marginal)"
-        : "var(--color-npv-negative)";
+        ? "var(--trust-mid)"
+        : "var(--trust-lo)";
 
   return (
     <div>
       <div style={{ display: "flex", gap: 24, marginBottom: 20 }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 28, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--color-success)" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--ok)" }}>
             {npv.total_output_value?.toFixed(1)}
           </div>
-          <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textTransform: "uppercase" }}>
+          <div style={{ fontSize: 11, color: "var(--text-2)", textTransform: "uppercase" }}>
             Output Value
           </div>
         </div>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 28, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--color-danger)" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--err)" }}>
             {npv.total_structural_cost?.toFixed(1)}
           </div>
-          <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textTransform: "uppercase" }}>
+          <div style={{ fontSize: 11, color: "var(--text-2)", textTransform: "uppercase" }}>
             Structural Cost
           </div>
         </div>
@@ -301,7 +301,7 @@ function NPVSection({ node }: { node: AnyNode }) {
           <div style={{ fontSize: 28, fontWeight: 700, fontFamily: "var(--font-mono)", color: npvColor }}>
             {npv.net_structural_npv?.toFixed(1)}
           </div>
-          <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textTransform: "uppercase" }}>
+          <div style={{ fontSize: 11, color: "var(--text-2)", textTransform: "uppercase" }}>
             Net NPV
           </div>
         </div>
@@ -313,10 +313,10 @@ function NPVSection({ node }: { node: AnyNode }) {
       />
 
       {npv.output_value_scores?.length > 0 && (
-        <div className="detail-section">
-          <div className="detail-section__title">Output Value Scores</div>
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Output Value Scores</div>
           {npv.output_value_scores.map((ovs: AnyNode, i: number) => (
-            <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--color-border)" }}>
+            <div key={i} style={{ padding: "6px 0", borderBottom: "1px solid var(--border)" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontWeight: 500, fontSize: 13 }}>{ovs.output_name}</span>
                 <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>
@@ -329,21 +329,21 @@ function NPVSection({ node }: { node: AnyNode }) {
       )}
 
       {npv.cost_scores && (
-        <div className="detail-section">
-          <div className="detail-section__title">Cost Breakdown</div>
+        <div className="o-detail-section">
+          <div className="o-detail-section__title">Cost Breakdown</div>
           {Object.entries(npv.cost_scores).map(([key, val]) => (
-            <div key={key} className="npv-bar">
-              <span className="npv-bar__label">{key.replace(/_/g, " ")}</span>
-              <div className="npv-bar__track">
+            <div key={key} className="m-npv-bar">
+              <span className="m-npv-bar__label">{key.replace(/_/g, " ")}</span>
+              <div className="m-npv-bar__track">
                 <div
-                  className="npv-bar__fill"
+                  className="m-npv-bar__fill"
                   style={{
                     width: `${((val as number) / 5) * 100}%`,
-                    background: "var(--color-danger)",
+                    background: "var(--err)",
                   }}
                 />
               </div>
-              <span className="npv-bar__value">{(val as number).toFixed(1)}</span>
+              <span className="m-npv-bar__value">{(val as number).toFixed(1)}</span>
             </div>
           ))}
         </div>
@@ -355,19 +355,19 @@ function NPVSection({ node }: { node: AnyNode }) {
 function GateSection({ node }: { node: AnyNode }) {
   const gate = node.decomposition_gate;
   if (!gate?.proposed_children?.length) {
-    return <p style={{ color: "var(--color-text-secondary)" }}>No decomposition decisions recorded.</p>;
+    return <p style={{ color: "var(--text-2)" }}>No decomposition decisions recorded.</p>;
   }
 
   return (
     <div>
       {gate.proposed_children.map((dec: AnyNode, i: number) => (
-        <div key={i} className="card" style={{ marginBottom: 12 }}>
+        <div key={i} className="o-card" style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <strong>{dec.concept}</strong>
-            <span className="badge badge--type">{dec.best_form}</span>
-            <span className="badge badge--info">{dec.action}</span>
+            <span className="a-badge a-badge--accent">{dec.best_form}</span>
+            <span className="a-badge a-badge--muted">{dec.action}</span>
           </div>
-          <div style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 8 }}>
             {dec.rationale}
           </div>
           <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
@@ -387,7 +387,7 @@ function StubSection() {
       style={{
         padding: "40px 0",
         textAlign: "center",
-        color: "var(--color-text-secondary)",
+        color: "var(--text-2)",
       }}
     >
       <p style={{ fontSize: 15, fontWeight: 600 }}>Coming Soon</p>
@@ -402,7 +402,7 @@ function DetailField({ label, value }: { label: string; value?: string | number 
   if (value == null || value === "") return null;
   return (
     <div style={{ marginBottom: 10 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--color-text-secondary)" }}>
+      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-2)" }}>
         {label}
       </div>
       <div style={{ fontSize: 13, marginTop: 2 }}>{String(value)}</div>

@@ -132,11 +132,11 @@ export default function IntakePage() {
   if (step === "processing") {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Analyzing Your Company</h1>
         </div>
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
+        <div className="o-loading">
+          <div className="a-heartbeat" />
           <p>{processStatus}</p>
         </div>
       </div>
@@ -154,14 +154,14 @@ export default function IntakePage() {
 
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Intake Complete</h1>
           <p>Review the extracted data below, then continue to process selection.</p>
         </div>
 
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="o-alert o-alert--err">{error}</div>}
         {allWarnings.length > 0 && (
-          <div className="warning-banner">
+          <div className="o-alert o-alert--warn">
             <strong>Warnings from extraction:</strong>
             <ul style={{ margin: "8px 0 0 16px" }}>
               {allWarnings.map((w, i) => (
@@ -171,62 +171,62 @@ export default function IntakePage() {
           </div>
         )}
 
-        <div className="card">
-          <div className="card__title">Company Profile</div>
-          <div className="grid-2" style={{ marginTop: 12 }}>
+        <div className="o-card">
+          <div className="o-card__title">Company Profile</div>
+          <div className="o-grid-2" style={{ marginTop: 12 }}>
             <div>
-              <div className="form-label">Company</div>
+              <div className="m-field__label">Company</div>
               <div>{profile.name}</div>
             </div>
             <div>
-              <div className="form-label">Industry</div>
+              <div className="m-field__label">Industry</div>
               <div>{profile.gics_industry || profile.gics_sector || "Unknown"}</div>
             </div>
             <div>
-              <div className="form-label">Revenue</div>
+              <div className="m-field__label">Revenue</div>
               <div>{profile.revenue ? `$${(profile.revenue / 1e6).toFixed(0)}M` : "Unknown"}</div>
             </div>
             <div>
-              <div className="form-label">Employees</div>
+              <div className="m-field__label">Employees</div>
               <div>{profile.employees || "Unknown"}</div>
             </div>
             <div>
-              <div className="form-label">Ownership</div>
+              <div className="m-field__label">Ownership</div>
               <div>{profile.ownership || "Unknown"}</div>
             </div>
             <div>
-              <div className="form-label">GICS Sub-Industry</div>
+              <div className="m-field__label">GICS Sub-Industry</div>
               <div>{profile.gics_sub_industry || "Unknown"}</div>
             </div>
           </div>
         </div>
 
         {financials && (
-          <div className="card">
-            <div className="card__title">Financials</div>
-            <div className="grid-2" style={{ marginTop: 12 }}>
+          <div className="o-card">
+            <div className="o-card__title">Financials</div>
+            <div className="o-grid-2" style={{ marginTop: 12 }}>
               <div>
-                <div className="form-label">Revenue</div>
+                <div className="m-field__label">Revenue</div>
                 <div>${(financials.revenue / 1e6).toFixed(0)}M</div>
               </div>
               <div>
-                <div className="form-label">EBITDA Margin</div>
+                <div className="m-field__label">EBITDA Margin</div>
                 <div>{(financials.ebitda_margin * 100).toFixed(1)}%</div>
               </div>
               <div>
-                <div className="form-label">COGS Ratio</div>
+                <div className="m-field__label">COGS Ratio</div>
                 <div>{(financials.cogs_ratio * 100).toFixed(1)}%</div>
               </div>
               <div>
-                <div className="form-label">SG&A Ratio</div>
+                <div className="m-field__label">SG&A Ratio</div>
                 <div>{(financials.sga_ratio * 100).toFixed(1)}%</div>
               </div>
               <div>
-                <div className="form-label">Labor %</div>
+                <div className="m-field__label">Labor %</div>
                 <div>{(financials.labor_percent * 100).toFixed(1)}%</div>
               </div>
               <div>
-                <div className="form-label">Estimated?</div>
+                <div className="m-field__label">Estimated?</div>
                 <div>{financials.is_estimated ? "Yes (industry avg)" : "No (from docs)"}</div>
               </div>
             </div>
@@ -234,11 +234,11 @@ export default function IntakePage() {
         )}
 
         {allEntities.length > 0 && (
-          <div className="card">
-            <div className="card__title">Entities Detected</div>
+          <div className="o-card">
+            <div className="o-card__title">Entities Detected</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
               {allEntities.map((e, i) => (
-                <span key={i} className="badge badge--type">
+                <span key={i} className="a-badge a-badge--accent">
                   {e}
                 </span>
               ))}
@@ -246,15 +246,15 @@ export default function IntakePage() {
           </div>
         )}
 
-        <div className="card">
-          <div className="card__title">Documents Processed</div>
+        <div className="o-card">
+          <div className="o-card__title">Documents Processed</div>
           {result.documents.map((doc) => (
-            <div key={doc.document_id} style={{ padding: "8px 0", borderBottom: "1px solid var(--color-border)" }}>
+            <div key={doc.document_id} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)" }}>
               <strong>{doc.file_name}</strong>
-              <span className="badge badge--info" style={{ marginLeft: 8 }}>
+              <span className="a-badge a-badge--muted" style={{ marginLeft: 8 }}>
                 {doc.document_type}
               </span>
-              <p style={{ fontSize: 13, color: "var(--color-text-secondary)", marginTop: 4 }}>
+              <p style={{ fontSize: 13, color: "var(--text-2)", marginTop: 4 }}>
                 {doc.summary}
               </p>
             </div>
@@ -263,7 +263,7 @@ export default function IntakePage() {
 
         <div style={{ marginTop: 24 }}>
           <button
-            className="btn btn--primary"
+            className="a-btn a-btn--primary"
             onClick={() => router.push("/wizard/processes")}
           >
             Continue to Processes
@@ -276,7 +276,7 @@ export default function IntakePage() {
   // Form view
   return (
     <div>
-      <div className="page-header">
+      <div className="o-page-header">
         <h1>Company Intake</h1>
         <p>
           Enter your company details and upload financial or strategic documents. ATLAS
@@ -284,16 +284,16 @@ export default function IntakePage() {
         </p>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="o-alert o-alert--err">{error}</div>}
 
-      <div className="card">
-        <div className="form-group">
-          <label className="form-label" htmlFor="company-name">
+      <div className="o-card">
+        <div className="m-field">
+          <label className="m-field__label" htmlFor="company-name">
             Company Name
           </label>
           <input
             id="company-name"
-            className="form-input"
+            className="a-input"
             type="text"
             placeholder="e.g. Acme Healthcare Inc."
             value={companyName}
@@ -301,23 +301,23 @@ export default function IntakePage() {
           />
         </div>
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="strategic-context">
+        <div className="m-field">
+          <label className="m-field__label" htmlFor="strategic-context">
             Strategic Context
           </label>
           <textarea
             id="strategic-context"
-            className="form-textarea"
+            className="a-textarea"
             placeholder="Describe the company's strategic priorities, recent initiatives, market position, or any context relevant to agent automation..."
             value={strategicContext}
             onChange={(e) => setStrategicContext(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Documents</label>
+        <div className="m-field">
+          <label className="m-field__label">Documents</label>
           <div
-            className={`file-dropzone ${dragActive ? "file-dropzone--active" : ""}`}
+            className={`m-dropzone ${dragActive ? "m-dropzone--active" : ""}`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -332,10 +332,10 @@ export default function IntakePage() {
               onChange={handleFileSelect}
               style={{ display: "none" }}
             />
-            <p className="file-dropzone__text">
+            <p className="m-dropzone__text">
               Drop files here or click to browse
             </p>
-            <p className="file-dropzone__hint">
+            <p className="m-dropzone__hint">
               PDF, Excel, Word, CSV, TXT accepted
             </p>
           </div>
@@ -350,14 +350,14 @@ export default function IntakePage() {
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "8px 12px",
-                    background: "var(--color-surface)",
-                    borderRadius: "var(--radius)",
+                    background: "var(--bg-surface)",
+                    borderRadius: "var(--radius-md)",
                     marginBottom: 4,
                   }}
                 >
                   <span style={{ fontSize: 13 }}>{file.name}</span>
                   <button
-                    className="btn btn--secondary btn--small"
+                    className="a-btn a-btn--secondary a-btn--sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       removeFile(idx);
@@ -374,7 +374,7 @@ export default function IntakePage() {
 
       <div style={{ marginTop: 24 }}>
         <button
-          className="btn btn--primary"
+          className="a-btn a-btn--primary"
           disabled={!companyName.trim() || loading}
           onClick={handleSubmit}
         >

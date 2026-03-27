@@ -3,9 +3,6 @@
 import { useState, useEffect } from "react";
 import { useAtlas } from "../../../hooks/use-atlas";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyResult = Record<string, any>;
-
 interface Artifact {
   filename: string;
   category: string;
@@ -73,11 +70,11 @@ export default function ExportPage() {
   if (loadingPhase) {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Export Package</h1>
         </div>
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
+        <div className="o-loading">
+          <div className="a-heartbeat" />
           <p>{loadingPhase}</p>
         </div>
       </div>
@@ -87,11 +84,11 @@ export default function ExportPage() {
   if (!exportResult) {
     return (
       <div>
-        <div className="page-header">
+        <div className="o-page-header">
           <h1>Export Package</h1>
         </div>
-        {error && <div className="error-banner">{error}</div>}
-        <p style={{ color: "var(--color-text-secondary)" }}>
+        {error && <div className="o-alert o-alert--err">{error}</div>}
+        <p style={{ color: "var(--text-2)" }}>
           No export available. Please complete the Configure step first.
         </p>
       </div>
@@ -105,7 +102,7 @@ export default function ExportPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="o-page-header">
         <h1>Export Package</h1>
         <p>
           Your ATLAS-Fractal agent system is ready for deployment. Download the
@@ -113,42 +110,42 @@ export default function ExportPage() {
         </p>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="o-alert o-alert--err">{error}</div>}
 
       {/* Summary Stats */}
       {summary && (
-        <div className="summary-stats">
-          <div className="summary-stat">
-            <div className="summary-stat__value">{summary.company_name}</div>
-            <div className="summary-stat__label">Company</div>
+        <div className="o-kpi-row">
+          <div className="m-stat-card">
+            <div className="m-stat-card__value">{summary.company_name}</div>
+            <div className="m-stat-card__label">Company</div>
           </div>
-          <div className="summary-stat">
-            <div className="summary-stat__value">{summary.total_nodes}</div>
-            <div className="summary-stat__label">Total Nodes</div>
+          <div className="m-stat-card">
+            <div className="m-stat-card__value">{summary.total_nodes}</div>
+            <div className="m-stat-card__label">Total Nodes</div>
           </div>
-          <div className="summary-stat">
-            <div className="summary-stat__value">{summary.total_demoted}</div>
-            <div className="summary-stat__label">Demoted</div>
+          <div className="m-stat-card">
+            <div className="m-stat-card__value">{summary.total_demoted}</div>
+            <div className="m-stat-card__label">Demoted</div>
           </div>
-          <div className="summary-stat">
-            <div className="summary-stat__value">
+          <div className="m-stat-card">
+            <div className="m-stat-card__value">
               {summary.total_npv?.toFixed(1) ?? "N/A"}
             </div>
-            <div className="summary-stat__label">Total NPV</div>
+            <div className="m-stat-card__label">Total NPV</div>
           </div>
         </div>
       )}
 
       {/* Download Button */}
       <div style={{ marginBottom: 24 }}>
-        <button className="btn btn--primary" onClick={handleDownload}>
+        <button className="a-btn a-btn--primary" onClick={handleDownload}>
           Download Package
         </button>
       </div>
 
       {/* Artifact List */}
-      <div className="card">
-        <div className="card__title">
+      <div className="o-card">
+        <div className="o-card__title">
           Artifacts ({artifacts.length})
         </div>
         <div style={{ marginTop: 12 }}>
@@ -160,16 +157,16 @@ export default function ExportPage() {
                 : `${size} B`;
 
             return (
-              <div key={artifact.filename} className="artifact-item">
+              <div key={artifact.filename} className="m-artifact-row">
                 <div>
-                  <div className="artifact-item__name">{artifact.filename}</div>
-                  <div className="artifact-item__meta">
-                    <span className="badge badge--info">{artifact.category}</span>
+                  <div className="m-artifact-row__name">{artifact.filename}</div>
+                  <div className="m-artifact-row__meta">
+                    <span className="a-badge a-badge--muted">{artifact.category}</span>
                     <span style={{ marginLeft: 8 }}>{sizeLabel}</span>
                   </div>
                 </div>
                 <button
-                  className="btn btn--secondary btn--small"
+                  className="a-btn a-btn--secondary a-btn--sm"
                   onClick={() =>
                     setPreviewArtifact(
                       previewArtifact === artifact.filename ? null : artifact.filename
@@ -187,10 +184,10 @@ export default function ExportPage() {
       {/* Preview Panel */}
       {previewContent && (
         <div style={{ marginTop: 16 }}>
-          <div className="detail-section__title" style={{ marginBottom: 8 }}>
+          <div className="o-detail-section__title" style={{ marginBottom: 8 }}>
             Preview: {previewArtifact}
           </div>
-          <div className="code-preview">{previewContent}</div>
+          <div className="m-code-block">{previewContent}</div>
         </div>
       )}
     </div>
