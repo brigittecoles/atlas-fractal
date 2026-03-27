@@ -59,6 +59,32 @@ Structural NPV(node) = PV(output quality gain + speed gain + reliability gain
 
 Create a node only when NPV is positive or strategic option value is exceptionally high.
 
+## Workbook Sheet Coverage
+
+| Sheet | Status | Maps To |
+|-------|--------|---------|
+| 00_README | Reference | Core doctrine in system prompt |
+| 01_Univ_Blank | Implemented | Sections A-F of UniversalFractalNode (Claude fills freeform during design) |
+| 02_Univ_Matrix | Implemented | Section G.output_value_scores (structured scoring) |
+| 03_Child_Index | Implemented | Section H.proposed_children + DemotedConcept[] |
+| 04_Runtime_Map | Implemented | Section E.runtime_tier + translators |
+| 05_Structural_NPV | Implemented | `score_structural_npv` tool + Section G |
+| 06_Decomp_Gate | Implemented | `run_decomposition_gate` tool + Section H |
+| 07_Output_Economics | Implemented | `score_output_economics` tool + OutputEconomicsEntry |
+| 08_Runtime_Promotion | Implemented | `check_runtime_promotion` tool (v1: always runtime) |
+| 09_Validation | Implemented | `validate_node` tool |
+| 10_Governance | Partial | Section F.owner, F.lifecycle_status, F.policies. Full governance workflow deferred. |
+| 11_Consolidation | Implemented | `check_consolidation` tool |
+| 12_Quality_Review | Implemented | `review_output_quality` tool |
+| 13_Example_Node | Reference only | Used for testing/documentation, not runtime |
+| 14_Example_NPV | Reference only | Used for testing/documentation |
+| 15_Instance_Starter | Reference only | Template for manual use, not needed in agent |
+| 16_Ontology_Linkage | Stub | Section I typed fields, not actively populated |
+| 17_Atomic_Cap_Linkage | Stub | Section J typed fields, not actively populated |
+| 18_AEO_GEO_Linkage | Stub | Section K typed fields, not actively populated |
+
+Sections A-D (Identity, Purpose, Inputs/Outputs, Output Value Thesis) do not have dedicated tools — Claude fills these freeform during design based on the client context and APQC data. The fractal gate tools (NPV, decomposition, etc.) score and validate what Claude produces.
+
 ## Core Data Model: The Universal Fractal Node
 
 Every node in the system — Value Chain Area, POD, Agent, Sub-Agent — uses the **same schema**. That's the fractal principle.
@@ -127,7 +153,7 @@ UniversalFractalNode
   +-- G. Structural NPV
   |     +-- output_value_scores: OutputValueScore[]
   |     |     (each: output_id, importance 1-5, quality_gain, speed_gain,
-  |     |      reliability_gain, reuse_gain, governance_gain, total)
+  |     |      reliability_gain, reuse_gain, governance_gain, productization_gain, total)
   |     +-- total_output_value: number
   |     +-- cost_scores: CostScores
   |     |     (complexity, maintenance, coordination, semantic_duplication,
@@ -224,6 +250,75 @@ OutputEconomicsEntry
   +-- blast_radius: string
 ```
 
+### Supporting Types
+
+```
+OutputSpec (used in section C)
+  +-- output_id: string
+  +-- name: string
+  +-- description: string
+  +-- value_type?: "revenue_bearing" | "trust_bearing" | "mission_critical"
+                 | "reusable_upstream" | "governance_sensitive"
+
+NormalizedToolSpec (used in section F)
+  +-- name: string
+  +-- description: string
+  +-- parameters: { name: string, type: string, required: boolean }[]
+  +-- returns: string
+
+NormalizedSkill (used in section F)
+  +-- name: string
+  +-- description: string
+  +-- capabilities: string[]
+
+McpServerSpec (used in section F)
+  +-- name: string
+  +-- transport: "stdio" | "http"
+  +-- url_or_command: string
+  +-- tools_provided: string[]
+
+DataSourceSpec (used in section F)
+  +-- name: string
+  +-- type: "database" | "api" | "file" | "stream"
+  +-- connection_info: string
+  +-- access_pattern: "read" | "write" | "read_write"
+
+MemoryConfig (used in section F)
+  +-- working: { description: string, storage_type: string, retention_policy: string }
+  +-- episodic: { description: string, storage_type: string, retention_policy: string }
+  +-- semantic: { description: string, storage_type: string, retention_policy: string }
+  +-- procedural: { description: string, storage_type: string, retention_policy: string }
+
+SelectedProcess (used in Session)
+  +-- process_id: string
+  +-- process_name: string
+  +-- l1_id: string
+  +-- l1_name: string
+  +-- porter_activity: string
+  +-- client_justification: string
+  +-- ebitda_score: number
+
+TranslatedFractalSystem
+  +-- extends FractalAgentSystem
+  +-- target_platform: string
+  +-- platform_constraints: string[]
+  +-- artifacts: { filename: string, content: string, category: string, description: string }[]
+
+SessionEvent
+  +-- timestamp: string
+  +-- type: "tool_call" | "human_edit" | "status_change" | "gate_override"
+  +-- tool_name?: string
+  +-- node_id?: string
+  +-- summary: string
+
+ConsolidationEntry
+  +-- source_node_ids: string[]
+  +-- action: "merge" | "demote" | "retire" | "keep"
+  +-- target_node_id?: string
+  +-- rationale: string
+  +-- timestamp: string
+```
+
 ## Fractal Gate Tools
 
 These are the decision engine. ATLAS (Claude) proposes nodes, then calls these tools to score and gate them. Each tool maps to a workbook layer.
@@ -236,17 +331,18 @@ Input:
   node_proposal: {
     name: string
     purpose: string
-    outputs: { name: string, importance: number }[]
     parent_node_id?: string
   }
-  value_estimates: {
+  per_output_scores: {
+    output_name: string
+    importance: number (1-5)
     quality_gain: number (0-5)
     speed_gain: number (0-5)
     reliability_gain: number (0-5)
     reuse_gain: number (0-5)
     governance_gain: number (0-5)
     productization_gain: number (0-5)
-  }
+  }[]
   cost_estimates: {
     complexity: number (0-5)
     maintenance_burden: number (0-5)
@@ -258,6 +354,8 @@ Input:
 
 Output:
   output_value_scores: OutputValueScore[]
+    (each: output_name, importance, quality_gain, speed_gain, reliability_gain,
+     reuse_gain, governance_gain, productization_gain, total)
   total_output_value: number
   total_structural_cost: number
   net_structural_npv: number
@@ -265,7 +363,9 @@ Output:
   reasoning: string
 ```
 
-ATLAS (Claude) provides the value and cost estimates. The tool computes the weighted NPV and returns a structured recommendation. Claude can override with justification.
+**NPV calculation:** For each output, `total = importance * mean(gains)`. `total_output_value = sum(output totals)`. `total_structural_cost = sum(cost scores)`. `net_structural_npv = total_output_value - total_structural_cost`. Recommendation: "create" if NPV > 0, "demote" if NPV < -2, "defer" otherwise. The tool also flags suspiciously uniform scores (all 4s/5s) as a warning.
+
+ATLAS (Claude) provides the per-output value estimates and cost estimates. The tool computes the weighted NPV per output and aggregate, and returns a structured recommendation. Claude can override with justification logged in session history.
 
 ### run_decomposition_gate (sheet 06)
 
@@ -396,25 +496,161 @@ Output:
 - `enrich_company_profile` — Assemble CompanyContext from all ingested documents
 
 ### APQC Framework
-- `search_processes` — Search APQC processes by industry, keywords, type
-- `get_process_detail` — Full process with work products, tech stacks, EBITDA scores
-- `map_to_value_chain` — Porter activities + L1 categories + reference mappings
+
+**`search_processes`** — same I/O as v6 (see v6 spec)
+
+**`get_process_detail`** — same I/O as v6
+
+**`map_to_value_chain`**
+```
+Input:
+  session_id: string
+  process_ids?: string[]
+
+Output:
+  porter_activities: { name: string, type: "primary"|"support", description: string }[]
+  apqc_l1_categories: { id: string, name: string }[]
+  reference_mappings: { l1_id: string, typical_porter_activities: string[] }[]
+```
+Returns frameworks for Claude to reason with. Does NOT hardcode mappings.
 
 ### Agent Design (fractal-aware)
-- `design_fractal_system` — Entry point. Assembles context for Claude to design the full system. Unlike v6, this returns the context + fractal doctrine so Claude applies NPV/gates during design.
-- `design_fractal_pod` — Scoped to one Value Chain Area.
-- `design_fractal_agent` — Scoped to one agent within a POD.
-- `store_fractal_system` — Store the completed FractalAgentSystem in the session.
+
+**Node storage model:** Nodes are built incrementally during design. Each `store_fractal_node` call persists a single node to the session's in-progress `fractal_system`. Claude builds nodes one at a time (after each passes gates), and tools like `validate_node` and `check_runtime_promotion` can look up any stored node by ID. `store_fractal_system` finalizes the system and advances session status to "design".
+
+**`design_fractal_system`**
+```
+Input:
+  session_id: string
+
+Output:
+  company_summary: { name, industry, revenue, employees, strategic_context }
+  selected_processes: { id, name, l1_name, work_products, tech_stacks, ebitda }[]
+  porter_mapping: { area: string, processes: string[] }[]
+  fractal_doctrine: string (the 5 core laws + NPV formula + gate rules)
+  design_guidelines: string (minimum viable agents, stop at semantic saturation)
+```
+
+**`design_fractal_pod`**
+```
+Input:
+  session_id: string
+  value_chain_area: string
+  process_ids: string[]
+  constraints?: { max_agents?: number, autonomy_preference?: string }
+
+Output:
+  area_context: { name, type, processes with full APQC detail }
+  existing_nodes: UniversalFractalNode[] (already stored in this area)
+  fractal_doctrine: string
+```
+
+**`design_fractal_agent`**
+```
+Input:
+  session_id: string
+  pod_id: string
+  required_outputs: string[]
+  constraints?: { tools?: string[], autonomy_level?: string }
+
+Output:
+  pod_context: { name, processes, existing_agents }
+  output_requirements: { name, consumers, quality_criteria }[]
+  fractal_doctrine: string
+```
+
+**`store_fractal_node`**
+```
+Input:
+  session_id: string
+  node: UniversalFractalNode
+  parent_node_id?: string (null for top-level value chain areas)
+
+Output:
+  stored_node_id: string
+  system_node_count: number
+```
+Persists a single node to the session's in-progress fractal system. Sets `parent_context` on the node. Updates session's `fractal_system` incrementally.
+
+**`store_demoted_concept`**
+```
+Input:
+  session_id: string
+  concept: DemotedConcept
+
+Output:
+  stored: boolean
+  total_demoted: number
+```
+
+**`store_fractal_system`**
+```
+Input:
+  session_id: string
+
+Output:
+  success: boolean
+  total_nodes: number
+  total_demoted: number
+  status: "design"
+```
+Finalizes the system. Validates all nodes have NPV scores and gate decisions. Advances session status to "design".
 
 ### Validation & Dependencies
-- `validate_fractal_system` — Walks the full system checking completeness, circular deps, orphaned nodes. Also verifies every node has NPV scores and gate decisions.
-- `resolve_dependencies` — Builds execution layers via topological sort.
-- `estimate_ebitda_impact` — Projects financial impact using client financials.
+
+**`validate_fractal_system`**
+```
+Input:
+  session_id: string
+
+Output:
+  valid: boolean
+  issues: { node_id, severity, category, message, suggested_fix? }[]
+  dependency_graph: { layers: { layer: number, node_ids: string[] }[], has_cycles: boolean }
+  npv_coverage: { nodes_with_npv: number, nodes_without: number }
+```
+
+**`resolve_dependencies`** — same I/O as v6
+
+**`estimate_ebitda_impact`** — same I/O as v6
 
 ### Export
-- `select_target_platform` — Set target platform (Claude Agent SDK in v1).
-- `translate_to_platform` — Translate normalized fractal spec to platform artifacts.
-- `export_package` — Produce downloadable package.
+
+**`select_target_platform`**
+```
+Input:
+  session_id: string
+  platform: "claude_agent_sdk"
+
+Output:
+  platform: string
+  capabilities: string[]
+  limitations: string[]
+  affected_nodes: { node_id, issues: string[] }[]
+```
+
+**`translate_to_platform`**
+```
+Input:
+  session_id: string
+
+Output:
+  translated_system: TranslatedFractalSystem
+  artifact_count: number
+  warnings: string[]
+```
+
+**`export_package`**
+```
+Input:
+  session_id: string
+  format: "zip"
+
+Output:
+  package_id: string
+  artifacts: { filename, category, size_bytes }[]
+  package_content: string (base64)
+```
 
 ## Agent Design Flow
 
@@ -426,34 +662,40 @@ This is how ATLAS (Claude) uses the fractal gates during design:
 
 2. For each proposed Value Chain Area:
    a. Claude proposes the node with purpose + outputs
-   b. Calls: score_structural_npv (with value + cost estimates)
-   c. If NPV positive: create the node
-   d. If NPV negative: Claude can accept demotion or argue override
-   e. Calls: score_output_economics (catalog the area's outputs)
+   b. Calls: run_decomposition_gate (fractal: same gate at every level)
+      - Value Chain Areas typically pass as "instance" (they map to Porter activities)
+      - But thin areas with few processes may be demoted to fields on a parent
+   c. Calls: score_structural_npv (with per-output value + cost estimates)
+   d. If NPV positive: calls store_fractal_node to persist
+   e. If NPV negative: Claude can accept demotion or argue override (logged)
+   f. Calls: score_output_economics (catalog the area's outputs)
 
 3. For each proposed POD within an area:
    a. Calls: run_decomposition_gate
       - If best_form = "instance": proceed to NPV scoring
-      - If best_form = "field"/"matrix"/"example"/"policy": demote
+      - If best_form != "instance": calls store_demoted_concept, skip
    b. Calls: score_structural_npv
-   c. If positive: create full node (sections A-K)
+   c. If positive: Claude fills sections A-K, calls store_fractal_node
 
 4. For each proposed Agent within a POD:
    a. Calls: run_decomposition_gate
    b. Calls: score_structural_npv
-   c. If positive: create full node with tools, memory, skills, MCP servers
+   c. If positive: Claude fills sections A-K (including tools, memory, skills, MCP servers)
    d. Calls: check_runtime_promotion (v1: always runtime)
+   e. Calls: store_fractal_node
 
 5. For proposed Sub-Agents within an Agent:
-   a. Same gate sequence — fractal recursion
+   a. Same gate sequence — fractal recursion (decomp gate -> NPV -> store)
    b. Stopping condition: semantic saturation (children are near-synonyms)
 
 6. After full system designed:
    a. Calls: check_consolidation (detect overlap across all nodes)
-   b. Calls: validate_node per node (acceptance tests)
-   c. Calls: review_output_quality per critical output
-   d. Calls: validate_fractal_system (structural integrity)
-   e. Calls: resolve_dependencies (execution layers)
+   b. Applies consolidation actions (merge/demote as recommended)
+   c. Calls: validate_node per node (acceptance tests)
+   d. Calls: review_output_quality per critical output
+   e. Calls: store_fractal_system (finalize + advance session status)
+   f. Calls: validate_fractal_system (structural integrity)
+   g. Calls: resolve_dependencies (execution layers)
 ```
 
 Claude drives the reasoning. Tools provide structured scoring. Every decision is traceable.
