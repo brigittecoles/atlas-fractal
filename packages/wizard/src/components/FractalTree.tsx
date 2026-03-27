@@ -2,20 +2,8 @@
 
 import { useState, useCallback } from "react";
 
-// Simplified local type matching atlas-agent's UniversalFractalNode
-interface FractalNode {
-  identity: {
-    id: string;
-    name: string;
-    type: string;
-  };
-  structural_npv?: {
-    net_structural_npv: number;
-    recommendation: string;
-  };
-  children: FractalNode[];
-  [key: string]: unknown;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FractalNode = Record<string, any>;
 
 interface FractalTreeProps {
   nodes: FractalNode[];
@@ -87,7 +75,7 @@ function TreeNode({
       </div>
       {expanded && hasChildren && (
         <div>
-          {node.children.map((child) => (
+          {node.children.map((child: FractalNode) => (
             <TreeNode
               key={child.identity.id}
               node={child}
