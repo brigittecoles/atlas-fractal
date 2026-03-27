@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: atlas-fractal-agent
+    runtime: node
+    region: ohio
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: ATLAS_PORT
+        value: 3001
+      - key: ATLAS_SESSION_DIR
+        value: /tmp/atlas-sessions
+      - key: NODE_ENV
+        value: production
+    rootDir: packages/atlas-agent
