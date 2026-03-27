@@ -18,7 +18,7 @@ export interface ExtractedDocument {
   document_type: string;
   extracted_data: {
     text: string;
-    tables: string[];
+    tables: Record<string, unknown>[];
     financials?: Financials;
     entities: string[];
   };
