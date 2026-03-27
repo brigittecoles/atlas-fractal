@@ -8,6 +8,9 @@ import {
   handleValidateFractalSystem,
   handleResolveDependencies,
   handleEstimateEbitdaImpact,
+  type ValidationResult,
+  type DependencyResult,
+  type EbitdaResult,
 } from "../system-validation.js";
 
 let store: SessionStore;
@@ -28,7 +31,7 @@ describe("handleValidateFractalSystem", () => {
     const node = createMinimalNode("area-ops", "Operations", "value_chain_area");
     store.addNode(session.id, node, null);
 
-    const result = handleValidateFractalSystem(session.id, store);
+    const result = handleValidateFractalSystem(session.id, store) as ValidationResult;
     expect(result).toHaveProperty("valid");
     expect(result).toHaveProperty("issues");
     expect(result).toHaveProperty("dependency_graph");
@@ -42,10 +45,10 @@ describe("handleValidateFractalSystem", () => {
     node.io.outputs = [];
     store.addNode(session.id, node, null);
 
-    const result = handleValidateFractalSystem(session.id, store);
+    const result = handleValidateFractalSystem(session.id, store) as ValidationResult;
     expect(result.valid).toBe(false);
     expect(result.issues.length).toBeGreaterThan(0);
-    const outputIssue = result.issues.find((i) => i.category === "missing_outputs");
+    const outputIssue = result.issues.find((i: any) => i.category === "missing_outputs");
     expect(outputIssue).toBeDefined();
   });
 
@@ -55,9 +58,9 @@ describe("handleValidateFractalSystem", () => {
     node.identity.name = "";
     store.addNode(session.id, node, null);
 
-    const result = handleValidateFractalSystem(session.id, store);
+    const result = handleValidateFractalSystem(session.id, store) as ValidationResult;
     expect(result.valid).toBe(false);
-    const nameIssue = result.issues.find((i) => i.category === "missing_name");
+    const nameIssue = result.issues.find((i: any) => i.category === "missing_name");
     expect(nameIssue).toBeDefined();
   });
 
@@ -76,7 +79,7 @@ describe("handleResolveDependencies", () => {
     const pod = createMinimalNode("pod-claims", "Claims", "pod");
     store.addNode(session.id, pod, "area-ops");
 
-    const result = handleResolveDependencies(session.id, store);
+    const result = handleResolveDependencies(session.id, store) as DependencyResult;
     expect(result).toHaveProperty("layers");
     expect(result).toHaveProperty("cross_pod_flows");
     expect(result).toHaveProperty("has_cycles");
@@ -132,7 +135,7 @@ describe("handleEstimateEbitdaImpact", () => {
       ],
     });
 
-    const result = handleEstimateEbitdaImpact(session.id, store);
+    const result = handleEstimateEbitdaImpact(session.id, store) as EbitdaResult;
     expect(result).toHaveProperty("total_impact_pct");
     expect(result).toHaveProperty("total_impact_dollars");
     expect(result).toHaveProperty("by_value_chain_area");

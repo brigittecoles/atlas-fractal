@@ -59,7 +59,7 @@ describe("handleDesignFractalSystem", () => {
       ],
     });
 
-    const result = handleDesignFractalSystem(session.id, store);
+    const result = handleDesignFractalSystem(session.id, store) as Record<string, any>;
     expect(result).toHaveProperty("company_summary");
     expect(result).toHaveProperty("selected_processes");
     expect(result).toHaveProperty("porter_mapping");
@@ -183,7 +183,7 @@ describe("handleStoreFractalNode", () => {
     const session = store.create();
     const node = createMinimalNode("area-ops", "Operations", "value_chain_area");
 
-    const result = handleStoreFractalNode(session.id, node, null, store);
+    const result = handleStoreFractalNode(session.id, node, null, store) as { stored_node_id: string; system_node_count: number };
     expect(result).toHaveProperty("stored_node_id", "area-ops");
     expect(result.system_node_count).toBe(1);
 
@@ -198,7 +198,7 @@ describe("handleStoreFractalNode", () => {
     store.addNode(session.id, parent, null);
 
     const child = createMinimalNode("pod-claims", "Claims Processing", "pod");
-    const result = handleStoreFractalNode(session.id, child, "area-ops", store);
+    const result = handleStoreFractalNode(session.id, child, "area-ops", store) as { stored_node_id: string; system_node_count: number };
     expect(result.stored_node_id).toBe("pod-claims");
     expect(result.system_node_count).toBe(2);
   });
@@ -231,7 +231,7 @@ describe("handleStoreDemotedConcept", () => {
         can_override: true,
       },
       store
-    );
+    ) as { stored: true; total_demoted: number };
     expect(result).toHaveProperty("stored", true);
     expect(result.total_demoted).toBe(1);
   });
@@ -243,7 +243,7 @@ describe("handleStoreFractalSystem", () => {
     const node = createMinimalNode("area-ops", "Operations", "value_chain_area");
     store.addNode(session.id, node, null);
 
-    const result = handleStoreFractalSystem(session.id, store);
+    const result = handleStoreFractalSystem(session.id, store) as { success: boolean; total_nodes: number; total_demoted: number; status: string };
     expect(result).toHaveProperty("success", true);
     expect(result.total_nodes).toBe(1);
     expect(result.total_demoted).toBe(0);
