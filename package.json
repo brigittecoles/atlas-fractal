@@ -1,0 +1,12 @@
+{
+  "name": "atlas-fractal",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "agent": "npm -w packages/atlas-agent run start",
+    "agent:dev": "npm -w packages/atlas-agent run dev",
+    "wizard": "npm -w packages/wizard run dev",
+    "build": "npm -w packages/atlas-agent run build && npm -w packages/wizard run build",
+    "test": "npm -w packages/atlas-agent run test"
+  }
+}
