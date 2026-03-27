@@ -46,7 +46,7 @@ export async function startServer(mode: "stdio" | "http"): Promise<void> {
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
 
-  const PORT = parseInt(process.env.ATLAS_PORT ?? "3001", 10);
+  const PORT = parseInt(process.env.PORT ?? process.env.ATLAS_PORT ?? "3001", 10);
 
   // Track active SSE transports by session ID
   const transports = new Map<string, SSEServerTransport>();
