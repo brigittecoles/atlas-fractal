@@ -1,2 +1,8 @@
 node_modules/
 .next/
+dist/
+.atlas-sessions/
+.claude/
+*.env
+*.env.local
+.DS_Store
