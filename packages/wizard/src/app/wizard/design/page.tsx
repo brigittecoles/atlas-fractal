@@ -77,16 +77,7 @@ export default function DesignPage() {
     setPromoting(concept.concept);
     try {
       await callTool("store_fractal_node", {
-        node: {
-          identity: {
-            id: `promoted_${concept.concept.toLowerCase().replace(/\s+/g, "_")}`,
-            name: concept.concept,
-            type: "agent",
-            parent_context: concept.parent_node_id,
-            candidate_child_concepts: [],
-            stopping_condition: "Promoted from demoted concept",
-          },
-        },
+        node: createDefaultNode(concept),
         parent_node_id: concept.parent_node_id,
       });
 
@@ -192,6 +183,92 @@ export default function DesignPage() {
       </div>
     </div>
   );
+}
+
+function createDefaultNode(concept: { concept: string; parent_node_id: string; rationale: string }): AnyNode {
+  const id = `promoted_${concept.concept.toLowerCase().replace(/\s+/g, "_")}`;
+  const emptyMemoryLayer = { description: "", storage_type: "", retention_policy: "" };
+  return {
+    identity: {
+      id,
+      name: concept.concept,
+      type: "agent",
+      parent_context: concept.parent_node_id,
+      candidate_child_concepts: [],
+      stopping_condition: "Promoted from demoted concept",
+    },
+    purpose_context: {
+      purpose: concept.rationale || "Promoted concept — purpose to be defined",
+      domain: "",
+      subdomain: "",
+      surfaces: [],
+      primary_users: [],
+      primary_route: "",
+      mad_lib: "",
+    },
+    io: {
+      inputs: [],
+      outputs: [],
+      why_outputs_matter: "",
+      downstream_consumers: [],
+      blast_radius: "",
+    },
+    output_value_thesis: {
+      quality: "",
+      speed: "",
+      reliability: "",
+      reuse: "",
+      governance: "",
+      productization: "",
+    },
+    runtime_shape: {
+      object_types: [],
+      resolvers: [],
+      states: [],
+      triggers: [],
+      actions: [],
+      output_destinations: [],
+      runtime_tier: "runtime",
+    },
+    tools_memory_policies: {
+      tools: [],
+      memory: {
+        working: { ...emptyMemoryLayer },
+        episodic: { ...emptyMemoryLayer },
+        semantic: { ...emptyMemoryLayer },
+        procedural: { ...emptyMemoryLayer },
+      },
+      skills: [],
+      mcp_servers: [],
+      data_sources: [],
+      policies: [],
+      handoffs: [],
+      owner: "",
+      lifecycle_status: "draft",
+    },
+    structural_npv: {
+      output_value_scores: [],
+      total_output_value: 0,
+      cost_scores: {
+        complexity: 0,
+        maintenance_burden: 0,
+        coordination_overhead: 0,
+        semantic_duplication: 0,
+        ontology_sprawl: 0,
+        consolidation_risk: 0,
+      },
+      total_structural_cost: 0,
+      net_structural_npv: 0,
+      recommendation: "defer",
+    },
+    decomposition_gate: {
+      proposed_children: [],
+    },
+    ontology_linkage: {},
+    capability_linkage: {},
+    aeo_geo_linkage: {},
+    children: [],
+  };
 }
 
 function countNodes(nodes: AnyNode[]): number {

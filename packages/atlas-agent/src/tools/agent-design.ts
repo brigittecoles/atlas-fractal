@@ -232,7 +232,7 @@ export function handleStoreFractalSystem(
   // Check all nodes have NPV scores
   function checkNpv(nodes: UniversalFractalNode[]): void {
     for (const node of nodes) {
-      if (node.structural_npv.net_structural_npv === undefined) {
+      if (!node.structural_npv || node.structural_npv.recommendation === undefined) {
         warnings.push(`Node "${node.identity.name}" (${node.identity.id}) has no NPV score.`);
       }
       if (node.children.length > 0) {

@@ -209,24 +209,35 @@ export function handleEstimateEbitdaImpact(
 
   // Group by porter_activity (value chain area)
   const areaMap = new Map<string, number>();
+  const areaProcessCount = new Map<string, number>();
   for (const proc of selectedProcesses) {
     const area = proc.porter_activity;
     const current = areaMap.get(area) ?? 0;
-    areaMap.set(area, current + proc.ebitda_score);
+    const count = areaProcessCount.get(area) ?? 0;
+    // Apply diminishing returns: each additional process in the same area
+    // contributes less (factor = 1 / (1 + 0.3 * count))
+    const diminishingFactor = 1 / (1 + 0.3 * count);
+    areaMap.set(area, current + proc.ebitda_score * diminishingFactor);
+    areaProcessCount.set(area, count + 1);
   }
 
   const by_value_chain_area = Array.from(areaMap.entries()).map(([area, score]) => ({
     area,
-    impact_pct: score,
+    impact_pct: Math.round(score * 100) / 100,
     impact_dollars: revenue > 0 ? Math.round((score / 100) * revenue) : 0,
   }));
 
-  const total_impact_pct = selectedProcesses.reduce((sum, p) => sum + p.ebitda_score, 0);
+  // Cap total at 15% of revenue to prevent unrealistic additive inflation
+  const MAX_IMPACT_PCT = 15;
+  const rawTotal = by_value_chain_area.reduce((sum, a) => sum + a.impact_pct, 0);
+  const total_impact_pct = Math.min(rawTotal, MAX_IMPACT_PCT);
   const total_impact_dollars = revenue > 0 ? Math.round((total_impact_pct / 100) * revenue) : 0;
 
   const assumptions = [
     `Revenue: $${(revenue / 1_000_000).toFixed(0)}M`,
     `Impact percentages from APQC EBITDA scoring (${selectedProcesses.length} processes)`,
+    "Diminishing returns applied when multiple processes target the same value chain area",
+    `Total capped at ${MAX_IMPACT_PCT}% of revenue to prevent additive inflation${rawTotal > MAX_IMPACT_PCT ? ` (raw total: ${rawTotal.toFixed(1)}%)` : ""}`,
     "Assumes full implementation with recommended agent portfolio",
     "Actual impact depends on adoption, change management, and existing automation maturity",
   ];

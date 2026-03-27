@@ -334,14 +334,7 @@ export async function handleIngestDocument(
     store.update(input.session_id, { company_context: session.company_context });
   }
 
-  // Record event in session history
-  store.appendEvent(input.session_id, {
-    type: "tool_call",
-    tool_name: "ingest_document",
-    summary: `Ingested ${input.file_name} (${input.file_type}, ${documentType})`,
-  });
-
-  return {
+  const result: IngestDocumentResult = {
     document_id: documentId,
     extracted_data: {
       text: parsed.text,
@@ -352,6 +345,17 @@ export async function handleIngestDocument(
     summary,
     warnings,
   };
+
+  // Record event in session history only on success (no error key)
+  if (!("error" in result)) {
+    store.appendEvent(input.session_id, {
+      type: "tool_call",
+      tool_name: "ingest_document",
+      summary: `Ingested ${input.file_name} (${input.file_type}, ${documentType})`,
+    });
+  }
+
+  return result;
 }
 
 export async function handleSummarizeDocument(

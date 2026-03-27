@@ -210,4 +210,66 @@ describe("handleScoreStructuralNpv", () => {
     expect(result.net_structural_npv).toBe(16);
     expect(result.recommendation).toBe("create");
   });
+
+  it('returns "defer" when NPV is exactly 0', () => {
+    // importance=2, gains all=1 => total = 2*1 = 2; costs sum = 2 => NPV = 0
+    const input: NpvInput = {
+      node_proposal: { name: "Zero NPV Node", purpose: "Exactly zero value" },
+      per_output_scores: [
+        {
+          output_name: "Breakeven Output",
+          importance: 2,
+          quality_gain: 1,
+          speed_gain: 1,
+          reliability_gain: 1,
+          reuse_gain: 1,
+          governance_gain: 1,
+          productization_gain: 1,
+        },
+      ],
+      cost_estimates: {
+        complexity: 1,
+        maintenance_burden: 1,
+        coordination_overhead: 0,
+        semantic_duplication: 0,
+        ontology_sprawl: 0,
+        consolidation_risk: 0,
+      },
+    };
+
+    const result = handleScoreStructuralNpv(input);
+    expect(result.net_structural_npv).toBe(0);
+    expect(result.recommendation).toBe("defer");
+  });
+
+  it('returns "defer" when NPV is exactly -2', () => {
+    // importance=2, gains all=1 => total = 2; costs sum = 4 => NPV = -2
+    const input: NpvInput = {
+      node_proposal: { name: "Boundary Demote Node", purpose: "Exactly -2 value" },
+      per_output_scores: [
+        {
+          output_name: "Low Value Output",
+          importance: 2,
+          quality_gain: 1,
+          speed_gain: 1,
+          reliability_gain: 1,
+          reuse_gain: 1,
+          governance_gain: 1,
+          productization_gain: 1,
+        },
+      ],
+      cost_estimates: {
+        complexity: 2,
+        maintenance_burden: 2,
+        coordination_overhead: 0,
+        semantic_duplication: 0,
+        ontology_sprawl: 0,
+        consolidation_risk: 0,
+      },
+    };
+
+    const result = handleScoreStructuralNpv(input);
+    expect(result.net_structural_npv).toBe(-2);
+    expect(result.recommendation).toBe("defer");
+  });
 });

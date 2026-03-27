@@ -106,8 +106,8 @@ export default function IntakePage() {
         const doc = (await callTool("ingest_document", {
           session_id: session.session_id,
           file_name: file.name,
-          file_type: file.type || guessType(file.name),
-          content_base64: base64,
+          file_type: getFileExtension(file.name),
+          file_content: base64,
         })) as ExtractedDoc;
 
         if (doc.warnings?.length) {
@@ -401,16 +401,11 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
-function guessType(name: string): string {
-  const ext = name.split(".").pop()?.toLowerCase();
-  const map: Record<string, string> = {
-    pdf: "application/pdf",
-    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    xls: "application/vnd.ms-excel",
-    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    doc: "application/msword",
-    csv: "text/csv",
-    txt: "text/plain",
+function getFileExtension(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
+  const extensionMap: Record<string, string> = {
+    pdf: "pdf", xlsx: "xlsx", xls: "xlsx", docx: "docx", doc: "docx",
+    csv: "csv", txt: "txt",
   };
-  return map[ext ?? ""] || "application/octet-stream";
+  return extensionMap[ext] || ext;
 }

@@ -10,15 +10,13 @@ import { SessionStore } from "./session/index.js";
 /**
  * Creates and returns a configured ATLAS-Fractal MCP server instance.
  * Tools are registered but no transport is connected yet.
+ * Accepts an external SessionStore so both MCP and HTTP paths share one store.
  */
-export function createAtlasServer(): McpServer {
+export function createAtlasServer(store: SessionStore): McpServer {
   const server = new McpServer(
     { name: "atlas-fractal", version: "6.0.0-fractal" },
     { capabilities: { tools: {} } }
   );
-
-  const sessionDir = process.env.ATLAS_SESSION_DIR ?? path.join(process.cwd(), ".atlas-sessions");
-  const store = new SessionStore(sessionDir);
 
   registerAllTools(server, store);
 
@@ -32,7 +30,9 @@ export function createAtlasServer(): McpServer {
  * - "http": Starts an Express server on port 3001 with SSE at /sse
  */
 export async function startServer(mode: "stdio" | "http"): Promise<void> {
-  const server = createAtlasServer();
+  const sessionDir = process.env.ATLAS_SESSION_DIR ?? path.join(process.cwd(), ".atlas-sessions");
+  const store = new SessionStore(sessionDir);
+  const server = createAtlasServer(store);
 
   if (mode === "stdio") {
     const transport = new StdioServerTransport();
@@ -41,10 +41,7 @@ export async function startServer(mode: "stdio" | "http"): Promise<void> {
     return;
   }
 
-  // HTTP/SSE mode
-  const sessionDir = process.env.ATLAS_SESSION_DIR ?? path.join(process.cwd(), ".atlas-sessions");
-  const httpStore = new SessionStore(sessionDir);
-
+  // HTTP/SSE mode — reuses the same store created above
   const app = express();
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
@@ -94,7 +91,7 @@ export async function startServer(mode: "stdio" | "http"): Promise<void> {
     }
 
     try {
-      const result = await handleToolCall(tool, params ?? {}, httpStore);
+      const result = await handleToolCall(tool, params ?? {}, store);
       res.json(result);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Internal error";

@@ -110,9 +110,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       document_type: z.enum(["pl", "strategy", "org_chart", "general"]).optional().describe("Document type"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "ingest_document", summary: `Ingesting ${params.file_name}` });
       const result = await handleIngestDocument(params, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "ingest_document", summary: `Ingested ${params.file_name}` });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -124,9 +127,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       document_id: z.string().describe("Document ID"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "summarize_document", summary: `Summarizing document ${params.document_id}` });
       const result = await handleSummarizeDocument(params.session_id, params.document_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "summarize_document", summary: `Summarized document ${params.document_id}` });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -137,9 +143,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string().describe("Session ID"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "enrich_company_profile", summary: "Enriching company profile" });
       const result = await handleEnrichCompanyProfile(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "enrich_company_profile", summary: "Enriching company profile" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -284,9 +293,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string().describe("Session ID"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "design_fractal_system", summary: "Assembling system design context" });
       const result = handleDesignFractalSystem(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "design_fractal_system", summary: "Assembling system design context" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -300,9 +312,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       constraints: z.record(z.string(), z.unknown()).optional(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "design_fractal_pod", summary: `Designing pod for ${params.value_chain_area}` });
       const result = handleDesignFractalPod(params.session_id, params.value_chain_area, params.process_ids, params.constraints ?? {}, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "design_fractal_pod", summary: `Designing pod for ${params.value_chain_area}` });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -316,9 +331,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       constraints: z.record(z.string(), z.unknown()).optional(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "design_fractal_agent", summary: `Designing agent for pod ${params.pod_id}` });
       const result = handleDesignFractalAgent(params.session_id, params.pod_id, params.required_outputs, params.constraints ?? {}, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "design_fractal_agent", summary: `Designing agent for pod ${params.pod_id}` });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -331,9 +349,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       parent_node_id: z.string().nullable().describe("Parent node ID, or null for top-level"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "store_fractal_node", summary: "Storing fractal node" });
       const result = handleStoreFractalNode(params.session_id, params.node as unknown as UniversalFractalNode, params.parent_node_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "store_fractal_node", summary: "Storing fractal node" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -345,9 +366,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       concept: z.record(z.string(), z.unknown()).describe("DemotedConcept as JSON"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "store_demoted_concept", summary: "Storing demoted concept" });
       const result = handleStoreDemotedConcept(params.session_id, params.concept as unknown as DemotedConcept, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "store_demoted_concept", summary: "Storing demoted concept" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -358,9 +382,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "store_fractal_system", summary: "Finalizing fractal system" });
       const result = handleStoreFractalSystem(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "store_fractal_system", summary: "Finalizing fractal system" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -373,9 +400,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "validate_fractal_system", summary: "Validating fractal system" });
       const result = handleValidateFractalSystem(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "validate_fractal_system", summary: "Validating fractal system" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -386,9 +416,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "resolve_dependencies", summary: "Resolving dependencies" });
       const result = handleResolveDependencies(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "resolve_dependencies", summary: "Resolving dependencies" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -399,9 +432,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "estimate_ebitda_impact", summary: "Estimating EBITDA impact" });
       const result = handleEstimateEbitdaImpact(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "estimate_ebitda_impact", summary: "Estimating EBITDA impact" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -415,9 +451,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "select_target_platform", summary: `Selecting platform: ${params.platform}` });
       const result = handleSelectTargetPlatform(params.platform, params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "select_target_platform", summary: `Selecting platform: ${params.platform}` });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -428,9 +467,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       session_id: z.string(),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "translate_to_platform", summary: "Translating to platform" });
       const result = handleTranslateToPlatform(params.session_id, store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "translate_to_platform", summary: "Translating to platform" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
@@ -442,9 +484,12 @@ export function registerAllTools(server: McpServer, store: SessionStore): void {
       format: z.string().optional().describe("Package format (default: json)"),
     },
     async (params) => {
-      store.appendEvent(params.session_id, { type: "tool_call", tool_name: "export_package", summary: "Exporting package" });
       const result = handleExportPackage(params.session_id, params.format ?? "json", store);
-      return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      const isError = "error" in result;
+      if (!isError) {
+        store.appendEvent(params.session_id, { type: "tool_call", tool_name: "export_package", summary: "Exporting package" });
+      }
+      return { content: [{ type: "text", text: JSON.stringify(result) }], isError };
     }
   );
 
